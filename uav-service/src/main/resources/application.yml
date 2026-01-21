@@ -8,3 +8,5 @@ dubbo:
   protocol:
     name: tri
     port: 50051
+  qos:
+    port: 22223
