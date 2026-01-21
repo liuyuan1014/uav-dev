@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: uav-gateway-iot
+
+dubbo:
+  registry:
+    address: nacos://192.168.126.128:8848

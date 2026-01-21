@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: uav-service
+
+dubbo:
+  registry:
+    address: nacos://192.168.126.128:8848
+  protocol:
+    name: tri
+    port: 50051
