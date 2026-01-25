@@ -1,19 +1,23 @@
 package com.uav.gateway.handler;
 
-import com.uav.api.dto.UavHeartbeatDTO;
-import com.uav.api.service.UavConnectService;
 import com.uav.gateway.protocol.UavPacket;
+import com.uav.gateway.producer.UavTelemetryProducer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.apache.dubbo.config.annotation.DubboReference;
+import io.netty.channel.ChannelHandler.Sharable;
 import org.springframework.stereotype.Service;
 
+// @Sharable注解表示这个类是共享的，多个线程可以共享同一个实例
 @Service
+@Sharable
 //继承SimpleChannelInboundHandler，会自动将UavPacket里的资源释放掉，因为ByteBuf是占用堆外内存的，所以需要手动释放掉
 public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
 
-    @DubboReference
-    private UavConnectService uavConnectService;
+    private final UavTelemetryProducer uavTelemetryProducer;
+
+    public UavServerHandler(UavTelemetryProducer uavTelemetryProducer) {
+        this.uavTelemetryProducer = uavTelemetryProducer;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -32,24 +36,11 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
                 break;
             case 2: // HEARTBEAT
                 System.out.println("收到心跳");
-                // 从body中解析设备ID
-                String deviceId = parseDeviceIdFromJson(packet.getBody());
-                
-                // 调用Dubbo服务---跨进程通信
-                // 网关只负责“收发信”，复杂的业务逻辑（存数据库、分析数据）交给Dubbo服务，这样做到了架构解耦
+                // 调用Kafka生产者发送遥测数据
                 try {
-                    UavHeartbeatDTO heartbeatDTO = new UavHeartbeatDTO();
-                    if (deviceId != null && !deviceId.isEmpty()) {
-                        heartbeatDTO.setDeviceId(deviceId);
-                    } else {
-                        heartbeatDTO.setDeviceId("UNKNOWN_DEVICE");
-                    }
-                    heartbeatDTO.setTimestamp(System.currentTimeMillis());
-                    
-                    Boolean result = uavConnectService.connect(heartbeatDTO);
-                    System.out.println("调用Dubbo服务结果: " + result);
+                    uavTelemetryProducer.sendTelemetry(packet);
                 } catch (Exception e) {
-                    System.err.println("调用Dubbo服务失败: " + e.getMessage());
+                    System.err.println("发送Kafka消息失败: " + e.getMessage());
                     e.printStackTrace();
                 }
                 break;
@@ -57,25 +48,6 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
                 System.out.println("未知命令: " + command);
                 break;
         }
-    }
-
-    // 解析JSON中的deviceId字段
-    private String parseDeviceIdFromJson(String jsonBody) {
-        // 简单解析JSON中的deviceId字段
-        try {
-            // 查找"deviceId":"
-            int startIndex = jsonBody.indexOf("\"deviceId\":\"");
-            if (startIndex != -1) {
-                startIndex += 12; // 跳过 "deviceId":" 
-                int endIndex = jsonBody.indexOf("\"", startIndex);
-                if (endIndex != -1) {
-                    return jsonBody.substring(startIndex, endIndex);
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("解析JSON失败: " + e.getMessage());
-        }
-        return null;
     }
 
     @Override

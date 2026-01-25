@@ -1,10 +1,29 @@
 spring:
   application:
     name: uav-gateway-iot
+  kafka:
+    producer:
+      bootstrap-servers: 101.42.103.115:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: uav-gateway-group
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 101.42.103.115:8848
+      config:
+        server-addr: 101.42.103.115:8848  # HTTP端口用于配置管理
 
+kafka:
+  uav:
+    telemetry:
+      topic: uav-telemetry
+
+# Dubbo配置（暂时保留，后续可移除）
 dubbo:
   registry:
-    address: nacos://192.168.126.128:8848
+    address: nacos://101.42.103.115:8848
   consumer:
     check: false  # 启动时不检查服务可用性，避免因uav-service未启动而失败
     timeout: 5000  # 设置调用超时时间

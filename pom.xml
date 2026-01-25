@@ -40,7 +40,7 @@
         <dubbo.version>3.2.0</dubbo.version>
         <netty.version>4.1.90.Final</netty.version>
         <kafka.version>3.0.5</kafka.version>
-        <nacos.version>2.2.0</nacos.version>
+        <nacos.version>2.1.2</nacos.version>
     </properties>
 
     <dependencyManagement>

@@ -1,10 +1,16 @@
 spring:
   application:
     name: uav-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 101.42.103.115:8848
+      config:
+        server-addr: 101.42.103.115:8848  # HTTP端口用于配置管理
 
 dubbo:
   registry:
-    address: nacos://192.168.126.128:8848
+    address: nacos://101.42.103.115:8848
   protocol:
     name: tri
     port: 50051

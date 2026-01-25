@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="07c89895-af98-4ecb-89c7-a8d2984c76f4" name="simi ubuntu">
+        <fileTransfer accessType="SFTP" host="192.168.126.128" port="22" sshConfigId="78c55c31-700f-4f8e-8c82-574d0329f87f" sshConfig="simi@192.168.126.128:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
