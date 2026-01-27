@@ -25,14 +25,20 @@ public class UavTelemetryProducer {
 
     // 发送遥测数据
     public void sendTelemetry(UavPacket packet) {
+        System.out.println("=== 开始处理遥测数据发送 ===");
+        System.out.println("原始消息体: " + packet.getBody());
+        
         // 从packet body中解析deviceId
         String deviceId = parseDeviceIdFromJson(packet.getBody());
         
         // 如果解析失败或ID为空，使用默认值
         String finalDeviceId = !StringUtils.hasText(deviceId) ? "UNKNOWN_DEVICE" : deviceId;
+        
+        System.out.println("解析到的设备ID: " + finalDeviceId);
 
         try {
             // 异步发送消息到Kafka
+            System.out.println("准备发送到Kafka - Topic: " + telemetryTopic + ", DeviceId: " + finalDeviceId);
             CompletableFuture<SendResult<String, String>> future = 
                 kafkaTemplate.send(telemetryTopic, finalDeviceId, packet.getBody());
 
@@ -52,6 +58,7 @@ public class UavTelemetryProducer {
             System.err.println("Kafka推送异常: " + e.getMessage());
             e.printStackTrace();
         }
+        System.out.println("=== 遥测数据发送处理结束 ===");
     }
 
     /**

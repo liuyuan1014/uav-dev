@@ -3,10 +3,11 @@ spring:
     name: uav-gateway-iot
   kafka:
     producer:
-      bootstrap-servers: 101.42.103.115:9092
+      bootstrap-servers: 152.136.128.11:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
+      bootstrap-servers: 152.136.128.11:9092
       group-id: uav-gateway-group
   cloud:
     nacos:

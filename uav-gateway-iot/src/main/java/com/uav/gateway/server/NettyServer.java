@@ -37,7 +37,7 @@ public class NettyServer {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
                             
-                            // 添加LengthFieldBasedFrameDecoder来处理粘包/拆包，这是Netty提供的
+                             //添加LengthFieldBasedFrameDecoder来处理粘包/拆包，这是Netty提供的
                             pipeline.addLast(new LengthFieldBasedFrameDecoder(
                                     1024 * 1024, // maxFrameLength，包的最大长度（防止超大包攻击）
                                     4,           // lengthFieldOffset  长度字段的偏移量（前4个字节是头，调过魔数2+版本1+命令1=4，正好是长度字段的位置）
@@ -48,7 +48,7 @@ public class NettyServer {
                             
                             // 添加自定义解码器，把字节变成对象
                             pipeline.addLast(new UavDecoder());
-                            
+
                             // 添加业务处理器
                             pipeline.addLast(uavServerHandler);
                         }

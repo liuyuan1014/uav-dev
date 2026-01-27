@@ -7,6 +7,28 @@ spring:
         server-addr: 101.42.103.115:8848
       config:
         server-addr: 101.42.103.115:8848  # HTTP端口用于配置管理
+  data:
+    mongodb:
+      uri: mongodb://root:root@152.136.128.11:27017/uav_db?authSource=admin
+    redis:
+      host: 101.42.103.115
+      port: 6379
+      database: 0
+
+  kafka:
+    consumer:
+      bootstrap-servers: 152.136.128.11:9092
+      group-id: telemetry-persistence-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: false
+    producer:
+      bootstrap-servers: 152.136.128.11:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      ack-mode: manual_immediate
 
 dubbo:
   registry:
