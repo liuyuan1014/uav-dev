@@ -7,7 +7,13 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.kafka.annotation.EnableKafka;
 
 @SpringBootApplication(exclude = {
-        DataSourceAutoConfiguration.class})
+        DataSourceAutoConfiguration.class},
+        scanBasePackages = {
+            "com.uav.service",
+            "com.uav.controller",
+            "com.uav.common",
+            "com.uav.model"
+        })
 @EnableDubbo
 @EnableKafka
 public class UavServiceApplication {

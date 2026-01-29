@@ -10,6 +10,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:root@152.136.128.11:27017/uav_db?authSource=admin
+
     redis:
       host: 101.42.103.115
       port: 6379
