@@ -1,5 +1,7 @@
 package com.uav.gateway.handler;
 
+import com.uav.gateway.config.NettyConnectManageService;
+import com.uav.gateway.config.SpringContextUtil;
 import com.uav.gateway.protocol.UavPacket;
 import com.uav.gateway.producer.UavTelemetryProducer;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,10 +41,29 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
 
         switch (command) {
             case 1: // LOGIN
-                System.out.println("设备登录请求: " + packet.getBody());//目前只是打印日志，后续优化：鉴权
+                System.out.println("设备登录请求: " + packet.getBody());
+                
+                // 解析设备ID并注册连接
+                String loginDeviceId = parseDeviceIdFromLogin(packet.getBody());
+                if (loginDeviceId != null && !loginDeviceId.isEmpty()) {
+                    // 获取连接管理服务并注册设备连接
+                    NettyConnectManageService connectManageService = SpringContextUtil.getBean(NettyConnectManageService.class);
+                    connectManageService.addChannel(loginDeviceId, ctx.channel());
+                }
                 break;
             case 2: // HEARTBEAT
                 System.out.println("收到心跳");
+                
+                // 从心跳数据中解析设备ID并注册连接（如果尚未注册）
+                String heartbeatDeviceId = parseDeviceIdFromHeartbeat(packet.getBody());
+                if (heartbeatDeviceId != null && !heartbeatDeviceId.isEmpty()) {
+                    // 获取连接管理服务并注册设备连接
+                    NettyConnectManageService connectManageService = SpringContextUtil.getBean(NettyConnectManageService.class);
+                    if (connectManageService.getChannel(heartbeatDeviceId) == null) {
+                        connectManageService.addChannel(heartbeatDeviceId, ctx.channel());
+                    }
+                }
+                
                 // 调用Kafka生产者发送遥测数据
                 try {
                     System.out.println("开始发送遥测数据到Kafka...");
@@ -51,6 +72,10 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
                     System.err.println("发送Kafka消息失败: " + e.getMessage());
                     e.printStackTrace();
                 }
+                break;
+            case 3: // COMMAND RESPONSE (来自无人机对指令的响应)
+                System.out.println("收到指令响应");
+                // 这里可以处理无人机对指令的响应
                 break;
             default:
                 System.out.println("未知命令: " + command);
@@ -63,6 +88,12 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         System.err.println("处理客户端消息时发生异常: " + cause.getMessage());
         cause.printStackTrace();
+        
+        // 异常时移除连接
+        NettyConnectManageService connectManageService = SpringContextUtil.getBean(NettyConnectManageService.class);
+        connectManageService.removeChannel(ctx.channel());
+        
+        System.out.println("设备断开连接（异常）: " + ctx.channel().remoteAddress());
         ctx.close();
     }
 
@@ -70,6 +101,89 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         System.out.println("设备断开连接: " + ctx.channel().remoteAddress());
+        
+        // 从Channel上获取设备ID
+        String deviceId = ctx.channel().attr(NettyConnectManageService.DEVICE_ID_KEY).get();
+        
+        // 移除连接
+        NettyConnectManageService connectManageService = SpringContextUtil.getBean(NettyConnectManageService.class);
+        connectManageService.removeChannel(ctx.channel());
+        
+        if (deviceId != null) {
+            System.out.println("设备断开连接: " + deviceId);
+        }
+        
         super.channelInactive(ctx);
+    }
+    
+    /**
+     * 从登录数据中解析设备ID
+     * 
+     * @param loginData 登录数据
+     * @return 设备ID
+     */
+    private String parseDeviceIdFromLogin(String loginData) {
+        // 如果登录数据是JSON格式，尝试从中解析设备ID
+        if (loginData != null && loginData.trim().startsWith("{")) {
+            return extractDeviceIdFromJson(loginData.trim());
+        }
+        // 否则直接返回登录数据作为设备ID（假设是纯文本格式）
+        return loginData != null ? loginData.trim() : null;
+    }
+    
+    /**
+     * 从心跳数据中解析设备ID
+     * 
+     * @param heartbeatData 心跳数据
+     * @return 设备ID
+     */
+    private String parseDeviceIdFromHeartbeat(String heartbeatData) {
+        // 心跳数据通常是JSON格式，从中提取设备ID
+        return extractDeviceIdFromJson(heartbeatData);
+    }
+    
+    /**
+     * 从JSON字符串中提取deviceId字段的值
+     * 
+     * @param json JSON字符串
+     * @return 设备ID
+     */
+    private String extractDeviceIdFromJson(String json) {
+        if (json == null || json.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // 简单的字符串解析方式提取deviceId
+            int start = json.indexOf("\"deviceId\"");
+            if (start == -1) {
+                // 尝试小写形式
+                start = json.indexOf("\"deviceid\"");
+                if (start == -1) {
+                    return null;
+                }
+            }
+            
+            int colonIndex = json.indexOf(":", start);
+            if (colonIndex == -1) {
+                return null;
+            }
+            
+            int quoteStart = json.indexOf("\"", colonIndex);
+            if (quoteStart == -1) {
+                return null; // 没有找到引号，可能不是字符串值
+            }
+            
+            int quoteEnd = json.indexOf("\"", quoteStart + 1);
+            if (quoteEnd == -1) {
+                return null;
+            }
+            
+            return json.substring(quoteStart + 1, quoteEnd);
+        } catch (Exception e) {
+            System.err.println("解析JSON中的设备ID失败: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 }

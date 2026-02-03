@@ -7,7 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.uav.gateway", "com.uav.api"}) // 确保扫描到所有组件，包括API模块
 @EnableDubbo
 public class UavGatewayApplication implements CommandLineRunner {
     
@@ -15,6 +15,10 @@ public class UavGatewayApplication implements CommandLineRunner {
     private NettyServer nettyServer;
     
     public static void main(String[] args) {
+        // 设置JVM参数以解决Java 17模块系统限制
+        System.setProperty("jdk.serialSetAccessOnly", "false");
+        System.setProperty("hessian.allowNonSerializable", "true");
+        
         SpringApplication.run(UavGatewayApplication.class, args);
     }
 

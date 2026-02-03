@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: uav-service
+  cloud:
+    nacos:
+      server-addr: 101.42.103.115:8848
+      config:
+        server-addr: 101.42.103.115:8848
+        file-extension: yml
+    sentinel:
+      transport:
+        dashboard: 101.42.103.115:8080
+      eager: true
+  profiles:
+    active: dev
+
+dubbo:
+  consumer:
+    serialization: fastjson2

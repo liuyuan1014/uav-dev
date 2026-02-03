@@ -18,6 +18,10 @@ import org.springframework.kafka.annotation.EnableKafka;
 @EnableKafka
 public class UavServiceApplication {
     public static void main(String[] args) {
+        // 设置JVM参数以解决Java 17模块系统限制
+        System.setProperty("jdk.serialSetAccessOnly", "false");
+        System.setProperty("hessian.allowNonSerializable", "true");
+        
         SpringApplication.run(UavServiceApplication.class, args);
     }
 }

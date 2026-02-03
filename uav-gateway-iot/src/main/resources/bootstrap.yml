@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: uav-gateway-iot
+  cloud:
+    nacos:
+      server-addr: 101.42.103.115:8848
+      config:
+        server-addr: 101.42.103.115:8848
+        file-extension: yml
+  profiles:
+    active: dev
+
+dubbo:
+  scan:
+    base-packages: com.uav.gateway.impl
+  protocol:
+    name: tri
+    port: -1
+    serialization: fastjson2
+  registry:
+    address: nacos://101.42.103.115:8848
+  consumer:
+    serialization: fastjson2
+  provider:
+    serialization: fastjson2
+  qos:
+    port: 22223
+    accept-foreign-ip: true

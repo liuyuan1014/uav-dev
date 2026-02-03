@@ -1,14 +1,4 @@
 spring:
-  application:
-    name: uav-gateway-iot
-  kafka:
-    producer:
-      bootstrap-servers: 152.136.128.11:9092
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    consumer:
-      bootstrap-servers: 152.136.128.11:9092
-      group-id: uav-gateway-group
   cloud:
     nacos:
       discovery:
@@ -21,10 +11,19 @@ kafka:
     telemetry:
       topic: uav-telemetry
 
-# Dubbo配置（暂时保留，后续可移除）
 dubbo:
+  scan:
+    base-packages: com.uav.gateway.impl
+  protocol:
+    name: tri
+    port: -1  # 随机端口
+    serialization: fastjson2  # 使用Fastjson2序列化
   registry:
     address: nacos://101.42.103.115:8848
   consumer:
-    check: false  # 启动时不检查服务可用性，避免因uav-service未启动而失败
-    timeout: 5000  # 设置调用超时时间
+    serialization: fastjson2  # 消费者也使用Fastjson2
+  provider:
+    serialization: fastjson2  # 提供者也使用Fastjson2
+  qos:
+    port: 22223  # 修改QoS端口为22223，避免冲突
+    accept-foreign-ip: true  # 允许远程访问QoS
