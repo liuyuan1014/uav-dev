@@ -22,4 +22,13 @@ public interface UavCommandService {
      * @return 是否在线
      */
     boolean isOnline(String deviceId);
+    
+    /**
+     * 验证设备登录
+     *
+     * @param deviceId 设备ID（对应数据库的serial_number）
+     * @param authCode 鉴权码
+     * @return 是否验证通过
+     */
+    boolean validateLogin(String deviceId, String authCode);
 }

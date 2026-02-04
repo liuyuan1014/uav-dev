@@ -5,24 +5,28 @@ import com.uav.gateway.config.NettyConnectManageService;
 import com.uav.gateway.protocol.UavPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import org.apache.dubbo.config.annotation.DubboService;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 
 /**
- * 无人机指令服务实现
+ * 无人机指令服务实现（Gateway端）
  * 通过Netty连接向无人机下发指令
  */
-@DubboService
 @Service
-public class UavCommandServiceImpl implements UavCommandService {
+public class UavCommandServiceGatewayImpl {
 
     @Autowired
     private NettyConnectManageService nettyConnectManageService;
+    
+    /**
+     * 引用Service端的Dubbo服务，用于设备验证
+     */
+    @DubboReference
+    private UavCommandService uavCommandService;
 
-    @Override
     public boolean sendCommand(String deviceId, String jsonCmd) {
         // 获取设备连接
         Channel channel = nettyConnectManageService.getChannel(deviceId);
@@ -68,8 +72,20 @@ public class UavCommandServiceImpl implements UavCommandService {
         }
     }
 
-    @Override
     public boolean isOnline(String deviceId) {
         return nettyConnectManageService.isDeviceOnline(deviceId);
+    }
+    
+    /**
+     * 验证设备登录（通过Dubbo调用Service端）
+     */
+    public boolean validateLogin(String deviceId, String authCode) {
+        try {
+            return uavCommandService.validateLogin(deviceId, authCode);
+        } catch (Exception e) {
+            System.err.println("调用设备验证服务失败: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }
