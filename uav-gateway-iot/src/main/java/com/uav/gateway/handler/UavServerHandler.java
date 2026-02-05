@@ -8,7 +8,12 @@ import com.uav.gateway.producer.UavTelemetryProducer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.ChannelHandler.Sharable;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 // @Sharable注解表示这个类是共享的，多个线程可以共享同一个实例
 @Service
@@ -45,27 +50,9 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
                 System.out.println("设备登录请求: " + packet.getBody());
                 handleLogin(ctx, packet.getBody());
                 break;
-            case 2: // HEARTBEAT
-                System.out.println("收到心跳");
-                
-                // 从心跳数据中解析设备ID并注册连接（如果尚未注册）
-                String heartbeatDeviceId = parseDeviceIdFromHeartbeat(packet.getBody());
-                if (heartbeatDeviceId != null && !heartbeatDeviceId.isEmpty()) {
-                    // 获取连接管理服务并注册设备连接
-                    NettyConnectManageService connectManageService = SpringContextUtil.getBean(NettyConnectManageService.class);
-                    if (connectManageService.getChannel(heartbeatDeviceId) == null) {
-                        connectManageService.addChannel(heartbeatDeviceId, ctx.channel());
-                    }
-                }
-                
-                // 调用Kafka生产者发送遥测数据
-                try {
-                    System.out.println("开始发送遥测数据到Kafka...");
-                    uavTelemetryProducer.sendTelemetry(packet);
-                } catch (Exception e) {
-                    System.err.println("发送Kafka消息失败: " + e.getMessage());
-                    e.printStackTrace();
-                }
+            case 2: // HEARTBEAT (遥测数据)
+                System.out.println("收到心跳/遥测数据");
+                handleTelemetry(ctx, packet.getBody());
                 break;
             case 3: // COMMAND RESPONSE (来自无人机对指令的响应)
                 System.out.println("收到指令响应");
@@ -140,10 +127,10 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
                 // 验证通过，注册连接
                 NettyConnectManageService connectManageService = SpringContextUtil.getBean(NettyConnectManageService.class);
                 connectManageService.addChannel(deviceId, ctx.channel());
-                System.out.println("✅ 设备登录成功: " + deviceId);
+                System.out.println("设备登录成功: " + deviceId);
             } else {
                 // 验证失败，断开连接
-                System.err.println("❌ 设备鉴权失败，断开连接: " + deviceId);
+                System.err.println(" 设备鉴权失败，断开连接: " + deviceId);
                 ctx.close();
             }
         } catch (Exception e) {
@@ -208,7 +195,7 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
                 pattern = "\"" + fieldName.toLowerCase() + "\"";
                 fieldStart = json.indexOf(pattern);
                 if (fieldStart == -1) {
-                    System.err.println("❌ 未找到字段: " + fieldName);
+                    System.err.println(" 未找到字段: " + fieldName);
                     return null;
                 }
             }
@@ -218,7 +205,7 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
             // 找到字段名后的冒号
             int colonIndex = json.indexOf(":", fieldStart + pattern.length());
             if (colonIndex == -1) {
-                System.err.println("❌ 字段 " + fieldName + " 后未找到冒号");
+                System.err.println(" 字段 " + fieldName + " 后未找到冒号");
                 return null;
             }
             
@@ -236,12 +223,12 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
             }
             
             if (valueStart >= json.length()) {
-                System.err.println("❌ 字段 " + fieldName + " 的值为空");
+                System.err.println(" 字段 " + fieldName + " 的值为空");
                 return null;
             }
             
-            System.out.println("✓ 值起始位置: " + valueStart);
-            System.out.println("✓ 从位置" + valueStart + "开始的内容: " + json.substring(valueStart, Math.min(valueStart + 50, json.length())));
+            System.out.println(" 值起始位置: " + valueStart);
+            System.out.println(" 从位置" + valueStart + "开始的内容: " + json.substring(valueStart, Math.min(valueStart + 50, json.length())));
             
             // 找到值的结束位置（引号、逗号或右花括号）
             int valueEnd = valueStart;
@@ -255,18 +242,87 @@ public class UavServerHandler extends SimpleChannelInboundHandler<UavPacket> {
             
             if (valueEnd > valueStart) {
                 String value = json.substring(valueStart, valueEnd);
-                System.out.println("✅ 成功解析字段 " + fieldName + " = " + value);
+                System.out.println("成功解析字段 " + fieldName + " = " + value);
                 System.out.println("=== 解析完成 ===\n");
                 return value;
             } else {
-                System.err.println("❌ 无法提取字段值");
+                System.err.println(" 无法提取字段值");
                 return null;
             }
             
         } catch (Exception e) {
-            System.err.println("❌ 解析JSON异常: " + e.getMessage());
+            System.err.println(" 解析JSON异常: " + e.getMessage());
             e.printStackTrace();
             return null;
+        }
+    }
+    
+    /**
+     * 处理遥测数据 - 实现双写策略
+     * Step A: 写入Redis (实时数据，供前端查询)
+     * Step B: 发送到Kafka (持久化，供结算服务使用)
+     *
+     * @param ctx Netty上下文
+     * @param telemetryData 遥测数据JSON字符串
+     */
+    private void handleTelemetry(ChannelHandlerContext ctx, String telemetryData) {
+        try {
+            // 1. 解析设备ID
+            String deviceId = extractFieldFromJson(telemetryData, "deviceId");
+            if (deviceId == null || deviceId.isEmpty()) {
+                System.err.println(" 遥测数据缺少deviceId，忽略处理");
+                return;
+            }
+            
+            // 2. 注册设备连接（如果尚未注册）
+            NettyConnectManageService connectManageService = SpringContextUtil.getBean(NettyConnectManageService.class);
+            if (connectManageService.getChannel(deviceId) == null) {
+                connectManageService.addChannel(deviceId, ctx.channel());
+                System.out.println("📡 设备自动注册: " + deviceId);
+            }
+            
+            // 3. Step A: 写入Redis (Hot Data - 实时数据)
+            try {
+                StringRedisTemplate redisTemplate = SpringContextUtil.getBean(StringRedisTemplate.class);
+                String redisKey = "uav:telemetry:realtime:" + deviceId;
+                
+                // 存储遥测数据，设置60秒过期（60秒无心跳视为离线）
+                redisTemplate.opsForValue().set(redisKey, telemetryData, 60, TimeUnit.SECONDS);
+                
+                System.out.println(" Redis写入成功: " + redisKey);
+            } catch (Exception e) {
+                // Redis故障不应影响主流程，记录日志继续处理
+                System.err.println(" Redis写入失败: " + e.getMessage());
+            }
+            
+            // 4. Step B: 发送到Kafka (Cold Data - 持久化数据)
+            try {
+                KafkaTemplate<String, String> kafkaTemplate = SpringContextUtil.getBean(KafkaTemplate.class);
+                String topic = "uav-telemetry";
+                
+                // 使用设备ID作为Key，确保同一设备的数据进入同一分区，保证顺序性
+                kafkaTemplate.send(topic, deviceId, telemetryData)
+                    .whenComplete((result, ex) -> {
+                        if (ex == null) {
+                            SendResult<String, String> sendResult = result;
+                            System.out.println(" Kafka发送成功: topic=" + topic +
+                                             ", partition=" + sendResult.getRecordMetadata().partition() +
+                                             ", offset=" + sendResult.getRecordMetadata().offset());
+                        } else {
+                            // Kafka故障不影响主流程，但需要记录日志
+                            System.err.println(" Kafka发送失败: " + ex.getMessage());
+                        }
+                    });
+            } catch (Exception e) {
+                // Kafka获取失败或发送异常，不影响主流程
+                System.err.println(" Kafka处理异常: " + e.getMessage());
+            }
+            
+            System.out.println(" 遥测数据处理完成: " + deviceId);
+            
+        } catch (Exception e) {
+            System.err.println(" 处理遥测数据异常: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
