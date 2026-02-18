@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * 无人机指令服务实现（Service端）
  * 提供设备验证等业务逻辑
  */
-@DubboService
+@DubboService(group = "service")
 @Service
 public class UavCommandServiceImpl implements UavCommandService {
 

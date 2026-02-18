@@ -12,3 +12,4 @@ server:
 dubbo:
   consumer:
     serialization: fastjson2  # 消费者也使用Fastjson2
+    check: false  # 启动时不检查服务提供者是否存在

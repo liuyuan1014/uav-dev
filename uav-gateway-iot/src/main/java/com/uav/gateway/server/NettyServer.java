@@ -1,6 +1,7 @@
 package com.uav.gateway.server;
 
 import com.uav.gateway.protocol.UavDecoder;
+import com.uav.gateway.protocol.UavEncoder;
 import com.uav.gateway.handler.UavServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -37,16 +38,19 @@ public class NettyServer {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
                             
-                             //添加LengthFieldBasedFrameDecoder来处理粘包/拆包，这是Netty提供的
+                            // 添加LengthFieldBasedFrameDecoder来处理粘包/拆包，这是Netty提供的
                             pipeline.addLast(new LengthFieldBasedFrameDecoder(
                                     1024 * 1024, // maxFrameLength，包的最大长度（防止超大包攻击）
-                                    4,           // lengthFieldOffset  长度字段的偏移量（前4个字节是头，调过魔数2+版本1+命令1=4，正好是长度字段的位置）
+                                    4,           // lengthFieldOffset  长度字段的偏移量（前4个字节是头，跳过魔数2+版本1+命令1=4，正好是长度字段的位置）
                                     4,           // lengthFieldLength  长度字段本身的长度（int 是4字节）
                                     0,           // lengthAdjustment
                                     0            // initialBytesToStrip
                             ));
                             
-                            // 添加自定义解码器，把字节变成对象
+                            // 添加自定义编码器，把 UavPacket 对象编码成字节流（用于服务器向客户端发送数据）
+                            pipeline.addLast(new UavEncoder());
+                            
+                            // 添加自定义解码器，把字节流解码成 UavPacket 对象（用于接收客户端数据）
                             pipeline.addLast(new UavDecoder());
 
                             // 添加业务处理器

@@ -2,21 +2,25 @@ package com.uav.gateway.impl;
 
 import com.uav.api.service.UavCommandService;
 import com.uav.gateway.config.NettyConnectManageService;
+import com.uav.gateway.protocol.UavCommandType;
 import com.uav.gateway.protocol.UavPacket;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
 /**
  * 无人机指令服务实现（Gateway端）
  * 通过Netty连接向无人机下发指令
+ *
+ * 作为 Dubbo 服务提供者，供 uav-service 模块调用
  */
-@Service
-public class UavCommandServiceGatewayImpl {
+@Component
+@DubboService(group = "gateway")
+public class UavCommandServiceGatewayImpl implements UavCommandService {
 
     @Autowired
     private NettyConnectManageService nettyConnectManageService;
@@ -24,9 +28,10 @@ public class UavCommandServiceGatewayImpl {
     /**
      * 引用Service端的Dubbo服务，用于设备验证
      */
-    @DubboReference
+    @DubboReference(group = "service")
     private UavCommandService uavCommandService;
 
+    @Override
     public boolean sendCommand(String deviceId, String jsonCmd) {
         // 获取设备连接
         Channel channel = nettyConnectManageService.getChannel(deviceId);
@@ -44,24 +49,16 @@ public class UavCommandServiceGatewayImpl {
         }
         
         try {
-            // 构建UavPacket用于发送指令
-            // 使用命令类型3表示指令下发
-            byte commandType = 3; // 假设3为指令下发命令类型
+            // 构建 UavPacket 对象
+            UavPacket packet = new UavPacket();
+            packet.setMagic((short) 0xACED);           // 魔数
+            packet.setVersion((byte) 1);               // 版本号
+            packet.setCommand(UavCommandType.CONTROL); // 命令类型：控制指令
+            packet.setBody(jsonCmd);                   // 消息体
+            packet.setLength(jsonCmd.getBytes(StandardCharsets.UTF_8).length);
             
-            // 计算消息体长度
-            byte[] bodyBytes = jsonCmd.getBytes(StandardCharsets.UTF_8);
-            int bodyLength = bodyBytes.length;
-            
-            // 创建完整的消息包 - 遵循与客户端相同的协议格式
-            ByteBuf buffer = channel.alloc().buffer();
-            buffer.writeShort((short) 0xACED);  // 魔数
-            buffer.writeByte((byte) 1);         // 版本号
-            buffer.writeByte(commandType);      // 命令类型：指令下发
-            buffer.writeInt(bodyLength);        // 消息体长度
-            buffer.writeBytes(bodyBytes);       // 消息体
-            
-            // 发送指令
-            channel.writeAndFlush(buffer);
+            // 发送 UavPacket 对象，UavEncoder 会自动编码
+            channel.writeAndFlush(packet);
             
             System.out.println("指令已发送至设备 " + deviceId + ": " + jsonCmd);
             return true;
@@ -72,6 +69,7 @@ public class UavCommandServiceGatewayImpl {
         }
     }
 
+    @Override
     public boolean isOnline(String deviceId) {
         return nettyConnectManageService.isDeviceOnline(deviceId);
     }
@@ -79,6 +77,7 @@ public class UavCommandServiceGatewayImpl {
     /**
      * 验证设备登录（通过Dubbo调用Service端）
      */
+    @Override
     public boolean validateLogin(String deviceId, String authCode) {
         try {
             return uavCommandService.validateLogin(deviceId, authCode);
