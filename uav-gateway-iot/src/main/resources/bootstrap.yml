@@ -3,9 +3,9 @@ spring:
     name: uav-gateway-iot
   cloud:
     nacos:
-      server-addr: 101.42.103.115:8848
+      server-addr: localhost:8848
       config:
-        server-addr: 101.42.103.115:8848
+        server-addr: localhost:8848
         file-extension: yml
   profiles:
     active: dev
@@ -18,7 +18,7 @@ dubbo:
     port: -1
     serialization: fastjson2
   registry:
-    address: nacos://101.42.103.115:8848
+    address: nacos://localhost:8848
   consumer:
     serialization: fastjson2
   provider:
