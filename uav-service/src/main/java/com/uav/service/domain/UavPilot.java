@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 /**
  * 无人机飞手实体类
  */
@@ -48,6 +51,16 @@ public class UavPilot extends BaseEntity {
     private String idCardNo;
 
     /**
+     * 身份证正面照片URL
+     */
+    private String idCardFrontImg;
+
+    /**
+     * 身份证反面照片URL
+     */
+    private String idCardBackImg;
+
+    /**
      * 飞手执照编号(CAAC/AOPA)
      */
     private String licenseNo;
@@ -61,4 +74,34 @@ public class UavPilot extends BaseEntity {
      * 状态 0:未认证 1:审核中 2:认证通过 -1:认证失败
      */
     private Integer status;
+
+    /**
+     * 审核时间
+     */
+    private LocalDateTime auditTime;
+
+    /**
+     * 审核人ID
+     */
+    private Long auditorId;
+
+    /**
+     * 审核备注
+     */
+    private String auditRemark;
+
+    /**
+     * 拒绝原因
+     */
+    private String rejectReason;
+
+    /**
+     * 飞手评分（1-5分）
+     */
+    private BigDecimal rating;
+
+    /**
+     * 累计完成任务数
+     */
+    private Integer totalMissions;
 }
