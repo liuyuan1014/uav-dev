@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 /**
  * 无人机任务控制器
  */
@@ -141,8 +144,92 @@ public class UavMissionController {
     }
 
     /**
+     * 完成任务
+     *
+     * @param missionId 任务ID
+     * @param actualDistance 实际飞行里程（公里）
+     * @return 完成结果
+     */
+    @PostMapping("/complete")
+    public Result<String> completeMission(
+            @RequestParam Long missionId,
+            @RequestParam BigDecimal actualDistance) {
+        
+        try {
+            // 参数校验
+            if (missionId == null) {
+                return Result.error("任务ID不能为空");
+            }
+            if (actualDistance == null || actualDistance.compareTo(BigDecimal.ZERO) <= 0) {
+                return Result.error("实际飞行里程必须大于0");
+            }
+            
+            // 完成任务
+            boolean success = uavMissionService.completeMission(missionId, actualDistance);
+            
+            if (success) {
+                log.info("任务完成成功: missionId={}, actualDistance={}", missionId, actualDistance);
+                return Result.success("任务完成成功");
+            } else {
+                return Result.error("任务完成失败");
+            }
+            
+        } catch (RuntimeException e) {
+            // 业务异常（如任务不存在、状态不正确等）
+            log.warn("任务完成失败: missionId={}, error={}", missionId, e.getMessage());
+            return Result.error(e.getMessage());
+        } catch (Exception e) {
+            log.error("任务完成失败: missionId={}", missionId, e);
+            return Result.error("任务完成失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 取消任务
+     *
+     * @param missionId 任务ID
+     * @param cancelType 取消类型（1-7，对应 CancelReasonEnum）
+     * @param operatorType 操作者类型（1=客户, 2=飞手, 3=系统）
+     * @return 取消结果（包含退款信息）
+     */
+    @PostMapping("/cancel")
+    public Result<Map<String, Object>> cancelMission(
+            @RequestParam Long missionId,
+            @RequestParam Integer cancelType,
+            @RequestParam Integer operatorType) {
+        
+        try {
+            // 参数校验
+            if (missionId == null) {
+                return Result.error("任务ID不能为空");
+            }
+            if (cancelType == null || cancelType < 1 || cancelType > 7) {
+                return Result.error("取消类型无效，必须在1-7之间");
+            }
+            if (operatorType == null || operatorType < 1 || operatorType > 3) {
+                return Result.error("操作者类型无效，必须在1-3之间");
+            }
+            
+            // 取消任务
+            Map<String, Object> result = uavMissionService.cancelMission(missionId, cancelType, operatorType);
+            
+            log.info("任务取消成功: missionId={}, cancelType={}, operatorType={}, refundAmount={}",
+                    missionId, cancelType, operatorType, result.get("refundAmount"));
+            return Result.success(result);
+            
+        } catch (RuntimeException e) {
+            // 业务异常（如任务不存在、状态不正确等）
+            log.warn("任务取消失败: missionId={}, error={}", missionId, e.getMessage());
+            return Result.error(e.getMessage());
+        } catch (Exception e) {
+            log.error("任务取消失败: missionId={}", missionId, e);
+            return Result.error("任务取消失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 查询任务详情
-     * 
+     *
      * @param missionId 任务ID
      * @return 任务详情
      */

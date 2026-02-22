@@ -91,4 +91,29 @@ public class UavMission extends BaseEntity {
      * 任务结束时间
      */
     private LocalDateTime endTime;
+
+    /**
+     * 取消类型（对应 CancelReasonEnum 的 code）
+     */
+    private Integer cancelType;
+
+    /**
+     * 操作者类型（1=客户, 2=飞手, 3=系统）
+     */
+    private Integer operatorType;
+
+    /**
+     * 取消原因描述（冗余字段，方便查询）
+     */
+    private String cancelReason;
+
+    /**
+     * 取消时间
+     */
+    private LocalDateTime cancelTime;
+
+    /**
+     * 完成时间
+     */
+    private LocalDateTime completeTime;
 }

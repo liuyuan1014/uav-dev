@@ -55,4 +55,12 @@ public enum MissionStatus {
         }
         return null;
     }
+    
+    /**
+     * 根据状态码获取描述
+     */
+    public static String getDescriptionByCode(Integer code) {
+        MissionStatus status = fromCode(code);
+        return status != null ? status.getDesc() : "未知状态";
+    }
 }

@@ -1,7 +1,9 @@
 package com.uav.service.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.uav.service.domain.CancelReasonEnum;
 import com.uav.service.domain.MissionStatus;
+import com.uav.service.domain.OperatorTypeEnum;
 import com.uav.service.domain.UavMission;
 import com.uav.service.mapper.UavMissionMapper;
 import com.uav.service.service.UavMissionService;
@@ -12,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -151,6 +156,177 @@ public class UavMissionServiceImpl extends ServiceImpl<UavMissionMapper, UavMiss
         }
         
         return success;
+    }
+
+    @Override
+    public boolean completeMission(Long missionId, BigDecimal actualDistance) {
+        UavMission mission = getById(missionId);
+        
+        if (mission == null) {
+            log.error("任务不存在: missionId={}", missionId);
+            throw new RuntimeException("任务不存在");
+        }
+        
+        if (!MissionStatus.IN_PROGRESS.getCode().equals(mission.getStatus())) {
+            log.warn("任务状态不正确，无法完成: missionId={}, currentStatus={}",
+                    missionId, mission.getStatus());
+            throw new RuntimeException("任务状态不正确，只有执行中的任务才能完成");
+        }
+        
+        // 简单计费公式：基础费用 + 里程费用
+        // 基础费用：10元
+        // 里程费用：5元/公里
+        BigDecimal baseFee = new BigDecimal("10.00");
+        BigDecimal distanceFee = actualDistance.multiply(new BigDecimal("5.00"));
+        BigDecimal totalFee = baseFee.add(distanceFee).setScale(2, RoundingMode.HALF_UP);
+        
+        // 更新任务信息
+        mission.setStatus(MissionStatus.COMPLETED.getCode());
+        mission.setActualDistance(actualDistance);
+        mission.setFee(totalFee);
+        mission.setEndTime(LocalDateTime.now());
+        mission.setCompleteTime(LocalDateTime.now());
+        
+        // 使用乐观锁更新
+        boolean success = updateById(mission);
+        
+        if (!success) {
+            log.error("任务完成失败（乐观锁冲突）: missionId={}", missionId);
+            throw new RuntimeException("任务完成失败，请重试");
+        }
+        
+        log.info("任务完成成功: missionId={}, actualDistance={}, fee={}",
+                missionId, actualDistance, totalFee);
+        return true;
+    }
+
+    @Override
+    public Map<String, Object> cancelMission(Long missionId, Integer cancelType, Integer operatorType) {
+        UavMission mission = getById(missionId);
+        
+        if (mission == null) {
+            log.error("任务不存在: missionId={}", missionId);
+            throw new RuntimeException("任务不存在");
+        }
+        
+        // 已完成的任务不能取消
+        if (MissionStatus.COMPLETED.getCode().equals(mission.getStatus())) {
+            log.warn("任务已完成，无法取消: missionId={}", missionId);
+            throw new RuntimeException("任务已完成，无法取消");
+        }
+        
+        // 已取消的任务不能重复取消
+        if (MissionStatus.CANCELLED.getCode().equals(mission.getStatus())) {
+            log.warn("任务已取消，无法重复取消: missionId={}", missionId);
+            throw new RuntimeException("任务已取消，无法重复取消");
+        }
+        
+        // 验证取消类型和操作者类型
+        CancelReasonEnum cancelReason = CancelReasonEnum.getByCode(cancelType);
+        OperatorTypeEnum operator = OperatorTypeEnum.getByCode(operatorType);
+        
+        if (cancelReason == null) {
+            log.error("无效的取消类型: cancelType={}", cancelType);
+            throw new RuntimeException("无效的取消类型");
+        }
+        
+        if (operator == null) {
+            log.error("无效的操作者类型: operatorType={}", operatorType);
+            throw new RuntimeException("无效的操作者类型");
+        }
+        
+        // 计算退款金额（基于任务状态和操作者）
+        BigDecimal refundAmount = calculateRefund(mission, operatorType);
+        String refundReason = buildRefundReason(mission.getStatus(), operator, cancelReason);
+        
+        // 更新任务信息
+        mission.setStatus(MissionStatus.CANCELLED.getCode());
+        mission.setCancelType(cancelType);
+        mission.setOperatorType(operatorType);
+        mission.setCancelReason(cancelReason.getDescription());
+        mission.setCancelTime(LocalDateTime.now());
+        mission.setEndTime(LocalDateTime.now());
+        
+        // 使用乐观锁更新
+        boolean success = updateById(mission);
+        
+        if (!success) {
+            log.error("任务取消失败（乐观锁冲突）: missionId={}", missionId);
+            throw new RuntimeException("任务取消失败，请重试");
+        }
+        
+        log.info("任务取消成功: missionId={}, cancelType={}, operatorType={}, refundAmount={}",
+                missionId, cancelType, operatorType, refundAmount);
+        
+        // 返回退款信息
+        Map<String, Object> result = new HashMap<>();
+        result.put("refundAmount", refundAmount);
+        result.put("refundReason", refundReason);
+        result.put("cancelReason", cancelReason.getDescription());
+        result.put("operator", operator.getDescription());
+        
+        return result;
+    }
+
+    /**
+     * 计算退款金额
+     *
+     * @param mission 任务对象
+     * @param operatorType 操作者类型（1=客户, 2=飞手, 3=系统）
+     * @return 退款金额
+     */
+    private BigDecimal calculateRefund(UavMission mission, Integer operatorType) {
+        // 假设任务费用为100元（实际应该从订单中获取）
+        BigDecimal totalFee = mission.getFee() != null && mission.getFee().compareTo(BigDecimal.ZERO) > 0
+                ? mission.getFee()
+                : new BigDecimal("100.00");
+        
+        Integer status = mission.getStatus();
+        
+        // 待接单状态（status=0）：任何人取消都全额退款
+        if (MissionStatus.PENDING.getCode().equals(status)) {
+            return totalFee;
+        }
+        
+        // 已接单状态（status=1）
+        if (MissionStatus.ACCEPTED.getCode().equals(status)) {
+            if (OperatorTypeEnum.CLIENT.getCode().equals(operatorType)) {
+                // 客户取消：退款90%（扣除10%违约金）
+                return totalFee.multiply(new BigDecimal("0.90")).setScale(2, RoundingMode.HALF_UP);
+            } else if (OperatorTypeEnum.PILOT.getCode().equals(operatorType)) {
+                // 飞手取消：全额退款 + 补偿（这里简化为全额退款）
+                return totalFee;
+            } else {
+                // 系统取消：全额退款
+                return totalFee;
+            }
+        }
+        
+        // 执行中状态（status=2）
+        if (MissionStatus.IN_PROGRESS.getCode().equals(status)) {
+            if (OperatorTypeEnum.CLIENT.getCode().equals(operatorType)) {
+                // 客户取消：退款70%（扣除30%违约金）
+                return totalFee.multiply(new BigDecimal("0.70")).setScale(2, RoundingMode.HALF_UP);
+            } else if (OperatorTypeEnum.PILOT.getCode().equals(operatorType)) {
+                // 飞手取消：全额退款 + 补偿（这里简化为全额退款）
+                return totalFee;
+            } else {
+                // 系统取消：全额退款
+                return totalFee;
+            }
+        }
+        
+        // 其他状态：不退款
+        return BigDecimal.ZERO;
+    }
+
+    /**
+     * 构建退款原因描述
+     */
+    private String buildRefundReason(Integer status, OperatorTypeEnum operator, CancelReasonEnum cancelReason) {
+        String statusDesc = MissionStatus.getDescriptionByCode(status);
+        return String.format("任务状态：%s，%s发起取消，原因：%s",
+                statusDesc, operator.getDescription(), cancelReason.getDescription());
     }
 
     /**
