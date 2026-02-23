@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: service-dispatch
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:8848
+        namespace: dev
+        group: UAV_GROUP
+        file-extension: yml
+        refresh-enabled: true

@@ -2,7 +2,6 @@ package com.uav.service.query.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uav.model.vo.UavStatusVO;
 import com.uav.service.query.UavQueryService;
 import com.uav.service.telemetry.UavTelemetryEntity;
 import com.uav.service.telemetry.UavTelemetryRepository;

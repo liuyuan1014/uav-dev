@@ -1,7 +1,6 @@
 package com.uav.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.uav.service.domain.UavDevice;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

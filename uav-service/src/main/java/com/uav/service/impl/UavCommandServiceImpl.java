@@ -2,7 +2,6 @@ package com.uav.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.uav.api.service.UavCommandService;
-import com.uav.service.domain.UavDevice;
 import com.uav.service.mapper.UavDeviceMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;

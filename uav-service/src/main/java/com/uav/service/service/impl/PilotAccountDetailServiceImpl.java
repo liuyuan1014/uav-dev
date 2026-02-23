@@ -2,8 +2,6 @@ package com.uav.service.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.uav.service.domain.PilotAccount;
-import com.uav.service.domain.PilotAccountDetail;
 import com.uav.service.mapper.PilotAccountDetailMapper;
 import com.uav.service.service.PilotAccountDetailService;
 import com.uav.service.service.PilotAccountService;

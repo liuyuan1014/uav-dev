@@ -1,10 +1,6 @@
 package com.uav.service.pilot.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.uav.service.domain.UavPilot;
-import com.uav.service.pilot.form.UpdatePilotAuthInfoForm;
-import com.uav.service.pilot.vo.PilotAuthInfoVo;
-import com.uav.service.pilot.vo.PilotInfoVo;
 
 /**
  * 飞手信息服务接口

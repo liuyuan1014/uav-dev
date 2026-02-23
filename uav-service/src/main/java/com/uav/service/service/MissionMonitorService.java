@@ -1,7 +1,7 @@
 package com.uav.service.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.uav.service.domain.MissionMonitor;
+import com.uav.model.entity.mission.MissionMonitor;
 
 import java.math.BigDecimal;
 import java.util.List;

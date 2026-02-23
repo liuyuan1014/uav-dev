@@ -1,7 +1,6 @@
 package com.uav.service.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.uav.service.domain.UavDevice;
 
 /**
  * 无人机设备服务接口

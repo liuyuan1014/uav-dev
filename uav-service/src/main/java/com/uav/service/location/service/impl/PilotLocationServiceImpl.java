@@ -2,11 +2,7 @@ package com.uav.service.location.service.impl;
 
 import com.uav.common.constant.RedisConstant;
 import com.uav.common.util.LocationUtil;
-import com.uav.service.domain.UavPilot;
-import com.uav.service.location.form.UpdateLocationForm;
 import com.uav.service.location.service.PilotLocationService;
-import com.uav.service.location.vo.NearbyPilotVo;
-import com.uav.service.location.vo.PilotLocationVo;
 import com.uav.service.mapper.UavPilotMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

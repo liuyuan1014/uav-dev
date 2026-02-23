@@ -1,18 +1,13 @@
 package com.uav.service.dispatch.service.impl;
 
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.uav.common.constant.RedisConstant;
 import com.uav.common.util.DispatchUtil;
 import com.uav.service.config.xxl.XxlJobClient;
-import com.uav.service.dispatch.form.StartDispatchForm;
 import com.uav.service.dispatch.service.DispatchService;
-import com.uav.service.dispatch.vo.DispatchRecordVo;
-import com.uav.service.dispatch.vo.DispatchStatisticsVo;
-import com.uav.service.domain.MissionJob;
-import com.uav.service.domain.UavMission;
+import com.uav.model.entity.mission.MissionJob;
+import com.uav.model.entity.mission.UavMission;
 import com.uav.service.location.service.PilotLocationService;
-import com.uav.service.location.vo.NearbyPilotVo;
 import com.uav.service.mapper.MissionJobMapper;
 import com.uav.service.mapper.UavMissionMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +16,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 

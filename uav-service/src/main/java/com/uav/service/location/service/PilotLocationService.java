@@ -1,9 +1,5 @@
 package com.uav.service.location.service;
 
-import com.uav.service.location.form.UpdateLocationForm;
-import com.uav.service.location.vo.NearbyPilotVo;
-import com.uav.service.location.vo.PilotLocationVo;
-
 import java.math.BigDecimal;
 import java.util.List;
 

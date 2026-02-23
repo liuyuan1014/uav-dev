@@ -2,7 +2,7 @@ package com.uav.service.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.uav.service.domain.MissionMonitor;
+import com.uav.model.entity.mission.MissionMonitor;
 import com.uav.service.mapper.MissionMonitorMapper;
 import com.uav.service.service.MissionMonitorService;
 import lombok.extern.slf4j.Slf4j;

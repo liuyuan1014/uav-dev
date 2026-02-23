@@ -1,7 +1,7 @@
 package com.uav.service.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.uav.service.domain.MissionComment;
+import com.uav.model.entity.mission.MissionComment;
 
 import java.util.List;
 

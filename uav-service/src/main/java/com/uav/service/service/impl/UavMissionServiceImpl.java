@@ -1,10 +1,7 @@
 package com.uav.service.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.uav.service.domain.CancelReasonEnum;
-import com.uav.service.domain.MissionStatus;
-import com.uav.service.domain.OperatorTypeEnum;
-import com.uav.service.domain.UavMission;
+import com.uav.model.entity.mission.UavMission;
 import com.uav.service.mapper.UavMissionMapper;
 import com.uav.service.service.UavMissionService;
 import lombok.extern.slf4j.Slf4j;

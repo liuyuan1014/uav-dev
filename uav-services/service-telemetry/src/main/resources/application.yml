@@ -1,0 +1,61 @@
+server:
+  port: 8207
+
+spring:
+  application:
+    name: service-telemetry
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/uav_telemetry
+      auto-index-creation: true
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: telemetry-persistence-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      ack-mode: manual
+
+# Dubbo配置
+dubbo:
+  application:
+    name: service-telemetry
+  protocol:
+    name: dubbo
+    port: 20887
+  registry:
+    address: nacos://localhost:8848
+  scan:
+    base-packages: com.uav.telemetry.service
+
+# Redisson配置
+redisson:
+  address: redis://localhost:6379
+  database: 0
+  timeout: 3000
+  pool:
+    max-active: 8
+    max-idle: 8
+    min-idle: 0
+    max-wait: -1
+
+# 日志配置
+logging:
+  level:
+    com.uav.telemetry: debug
+    org.springframework.data.mongodb: debug
+    org.springframework.kafka: info

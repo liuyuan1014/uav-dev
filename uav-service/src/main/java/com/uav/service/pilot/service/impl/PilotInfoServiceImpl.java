@@ -3,16 +3,10 @@ package com.uav.service.pilot.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.uav.common.service.CosStorageService;
-import com.uav.service.domain.UavMission;
-import com.uav.service.domain.UavPilot;
+import com.uav.model.entity.mission.UavMission;
 import com.uav.service.mapper.UavPilotMapper;
-import com.uav.service.pilot.domain.PilotCertificationAudit;
-import com.uav.service.pilot.domain.PilotCertificationStatus;
-import com.uav.service.pilot.form.UpdatePilotAuthInfoForm;
 import com.uav.service.pilot.mapper.PilotCertificationAuditMapper;
 import com.uav.service.pilot.service.PilotInfoService;
-import com.uav.service.pilot.vo.PilotAuthInfoVo;
-import com.uav.service.pilot.vo.PilotInfoVo;
 import com.uav.service.mapper.UavMissionMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -25,7 +19,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 /**
  * 飞手信息服务实现

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: service-location
+  
+  cloud:
+    nacos:
+      # 服务发现配置
+      discovery:
+        server-addr: 101.42.103.115:8848
+        namespace: public
+        group: DEFAULT_GROUP
+        enabled: true
+        register-enabled: true
+        
+      # 配置中心配置
+      config:
+        server-addr: 101.42.103.115:8848
+        namespace: public
+        group: DEFAULT_GROUP
+        file-extension: yml
+        enabled: true
+        refresh-enabled: true
+        
+  profiles:
+    active: dev

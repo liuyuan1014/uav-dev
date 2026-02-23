@@ -1,7 +1,7 @@
 package com.uav.controller;
 
 import com.uav.common.Result;
-import com.uav.service.domain.UavMission;
+import com.uav.model.entity.mission.UavMission;
 import com.uav.service.service.UavMissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

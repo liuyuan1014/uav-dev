@@ -1,7 +1,6 @@
 package com.uav.controller;
 
 import com.uav.common.Result;
-import com.uav.model.vo.UavStatusVO;
 import com.uav.service.query.UavQueryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

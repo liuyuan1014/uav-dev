@@ -1,7 +1,7 @@
 package com.uav.service.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.uav.service.domain.MissionStatusLog;
+import com.uav.model.entity.mission.MissionStatusLog;
 
 import java.util.List;
 

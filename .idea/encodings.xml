@@ -11,8 +11,42 @@
     <file url="file://$PROJECT_DIR$/uav-common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/uav-gateway-iot/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/uav-gateway-iot/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-model/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-model/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-account-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-account-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-device-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-device-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-dispatch-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-dispatch-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-location-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-location-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-mission-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-mission-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-pilot-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-pilot-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-telemetry-client/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/service-telemetry-client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-service-clients/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/uav-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/uav-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-account/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-account/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-device/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-device/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-dispatch/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-dispatch/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-location/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-location/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-mission/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-mission/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-pilot/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-pilot/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-telemetry/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/service-telemetry/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/uav-services/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/uav_common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/uav_common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/uav_gateway_iot/src/main/java" charset="UTF-8" />

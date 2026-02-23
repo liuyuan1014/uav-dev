@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: service-device
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: public
+      config:
+        server-addr: localhost:8848
+        namespace: public
+        file-extension: yml
+        shared-configs:
+          - data-id: common.yml
+            refresh: true

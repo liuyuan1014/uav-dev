@@ -18,10 +18,11 @@
     </properties>
 
     <dependencies>
+        <!-- Lombok -->
         <dependency>
-            <groupId>com.uav.dispatch</groupId>
-            <artifactId>uav-common</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

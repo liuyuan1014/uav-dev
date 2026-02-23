@@ -2,7 +2,6 @@ package com.uav.service.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.uav.service.domain.UavDevice;
 import com.uav.service.mapper.UavDeviceMapper;
 import com.uav.service.service.UavDeviceService;
 import org.springframework.stereotype.Service;

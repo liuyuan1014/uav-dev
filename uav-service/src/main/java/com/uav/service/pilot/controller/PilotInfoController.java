@@ -1,10 +1,7 @@
 package com.uav.service.pilot.controller;
 
 import com.uav.common.Result;
-import com.uav.service.pilot.form.UpdatePilotAuthInfoForm;
 import com.uav.service.pilot.service.PilotInfoService;
-import com.uav.service.pilot.vo.PilotAuthInfoVo;
-import com.uav.service.pilot.vo.PilotInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;

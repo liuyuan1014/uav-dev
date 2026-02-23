@@ -1,10 +1,7 @@
 package com.uav.service.location.controller;
 
 import com.uav.common.Result;
-import com.uav.service.location.form.UpdateLocationForm;
 import com.uav.service.location.service.PilotLocationService;
-import com.uav.service.location.vo.NearbyPilotVo;
-import com.uav.service.location.vo.PilotLocationVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

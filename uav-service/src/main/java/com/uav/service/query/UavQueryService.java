@@ -1,7 +1,5 @@
 package com.uav.service.query;
 
-import com.uav.model.vo.UavStatusVO;
-
 import java.util.List;
 
 /**

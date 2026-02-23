@@ -1,7 +1,7 @@
 package com.uav.service.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.uav.service.domain.MissionJob;
+import com.uav.model.entity.mission.MissionJob;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

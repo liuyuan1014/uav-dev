@@ -1,7 +1,7 @@
 package com.uav.service.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.uav.service.domain.MissionBill;
+import com.uav.model.entity.mission.MissionBill;
 
 /**
  * 任务账单服务接口
