@@ -37,6 +37,20 @@ public class Result<T> implements Serializable {
     }
     
     /**
+     * 成功响应（ok方法，等同于success）
+     */
+    public static <T> Result<T> ok(T data) {
+        return success(data);
+    }
+    
+    /**
+     * 成功响应（ok方法，带消息）
+     */
+    public static <T> Result<T> ok(String message, T data) {
+        return success(message, data);
+    }
+    
+    /**
      * 成功响应（带消息）
      */
     public static <T> Result<T> success(String message, T data) {

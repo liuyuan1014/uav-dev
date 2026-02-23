@@ -56,6 +56,11 @@ public class PilotCertificationAudit extends BaseEntity {
     private String auditRemark;
 
     /**
+     * 审核说明（新字段名，与auditRemark功能相同）
+     */
+    private String auditNote;
+
+    /**
      * 拒绝原因
      */
     private String rejectReason;

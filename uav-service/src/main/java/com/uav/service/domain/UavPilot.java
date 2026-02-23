@@ -104,4 +104,49 @@ public class UavPilot extends BaseEntity {
      * 累计完成任务数
      */
     private Integer totalMissions;
+
+    /**
+     * 身份证正面照片URL（新字段名）
+     */
+    private String idcardFrontUrl;
+
+    /**
+     * 身份证反面照片URL（新字段名）
+     */
+    private String idcardBackUrl;
+
+    /**
+     * 身份证手持照片URL
+     */
+    private String idcardHandUrl;
+
+    /**
+     * 驾驶证正面照片URL
+     */
+    private String driverLicenseFrontUrl;
+
+    /**
+     * 驾驶证反面照片URL
+     */
+    private String driverLicenseBackUrl;
+
+    /**
+     * 驾驶证手持照片URL
+     */
+    private String driverLicenseHandUrl;
+
+    /**
+     * 驾驶证领证日期
+     */
+    private String driverLicenseIssueDate;
+
+    /**
+     * 认证状态：0=未认证, 1=审核中, 2=认证通过, 3=认证拒绝
+     */
+    private Integer authStatus;
+
+    /**
+     * 平均评分
+     */
+    private BigDecimal avgRating;
 }
