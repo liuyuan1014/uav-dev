@@ -123,6 +123,20 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.2.0</version>
         </dependency>
+
+        <!-- XXL-JOB 分布式任务调度 -->
+        <dependency>
+            <groupId>com.xuxueli</groupId>
+            <artifactId>xxl-job-core</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+
+        <!-- Hutool工具类（用于HTTP请求） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.22</version>
+        </dependency>
     </dependencies>
 
     <build>

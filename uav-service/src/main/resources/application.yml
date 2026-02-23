@@ -26,3 +26,19 @@ tencent:
     bucket-name: uav-pilot-1234567890                          # 存储桶名称（需要替换为实际的bucket名称）
     base-url: https://uav-pilot-1234567890.cos.ap-guangzhou.myqcloud.com  # 访问域名
     expire-time: 3600                                          # 签名URL过期时间（秒）
+
+# XXL-JOB配置
+xxl:
+  job:
+    admin:
+      addresses: http://localhost:8080/xxl-job-admin           # 调度中心地址（需要根据实际部署修改）
+      username: admin                                          # 调度中心用户名
+      password: 123456                                         # 调度中心密码
+    executor:
+      appname: uav-service-executor                            # 执行器AppName（唯一标识）
+      address:                                                 # 执行器地址（为空则自动获取）
+      ip:                                                      # 执行器IP（为空则自动获取）
+      port: 9999                                               # 执行器端口
+      logpath: ./logs/xxl-job                                  # 执行器日志路径
+      logretentiondays: 30                                     # 日志保留天数
+    accessToken:                                               # 访问令牌（可选，需与调度中心保持一致）

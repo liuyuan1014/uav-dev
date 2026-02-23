@@ -52,9 +52,29 @@ public class UavMission extends BaseEntity {
     private String startLocation;
 
     /**
+     * 起点经度
+     */
+    private BigDecimal startPointLongitude;
+
+    /**
+     * 起点纬度
+     */
+    private BigDecimal startPointLatitude;
+
+    /**
      * 终点位置名称
      */
     private String endLocation;
+
+    /**
+     * 终点经度
+     */
+    private BigDecimal endPointLongitude;
+
+    /**
+     * 终点纬度
+     */
+    private BigDecimal endPointLatitude;
 
     /**
      * 预估里程（公里）
@@ -67,9 +87,24 @@ public class UavMission extends BaseEntity {
     private BigDecimal actualDistance;
 
     /**
+     * 预估金额（元）
+     */
+    private BigDecimal expectAmount;
+
+    /**
+     * 实际金额（元）
+     */
+    private BigDecimal realAmount;
+
+    /**
      * 任务费用（元）
      */
     private BigDecimal fee;
+
+    /**
+     * 客户好处费（元）
+     */
+    private BigDecimal favourFee;
 
     /**
      * 状态：0=待接单, 1=已接单, 2=执行中, 3=已完成, 4=已取消
@@ -83,14 +118,39 @@ public class UavMission extends BaseEntity {
     private Integer version;
 
     /**
+     * 飞手接单时间
+     */
+    private LocalDateTime acceptTime;
+
+    /**
+     * 飞手到达时间
+     */
+    private LocalDateTime arriveTime;
+
+    /**
      * 任务开始时间
      */
     private LocalDateTime startTime;
 
     /**
+     * 开始服务时间
+     */
+    private LocalDateTime startServiceTime;
+
+    /**
      * 任务结束时间
      */
     private LocalDateTime endTime;
+
+    /**
+     * 结束服务时间
+     */
+    private LocalDateTime endServiceTime;
+
+    /**
+     * 支付时间
+     */
+    private LocalDateTime payTime;
 
     /**
      * 取消类型（对应 CancelReasonEnum 的 code）
@@ -116,4 +176,34 @@ public class UavMission extends BaseEntity {
      * 完成时间
      */
     private LocalDateTime completeTime;
+
+    /**
+     * 无人机型号
+     */
+    private String uavModel;
+
+    /**
+     * 无人机序列号
+     */
+    private String uavSerialNumber;
+
+    /**
+     * 无人机起飞前照片
+     */
+    private String uavFrontPhoto;
+
+    /**
+     * 无人机降落后照片
+     */
+    private String uavLandingPhoto;
+
+    /**
+     * 微信支付订单号
+     */
+    private String transactionId;
+
+    /**
+     * 取消规则ID
+     */
+    private Long cancelRuleId;
 }
